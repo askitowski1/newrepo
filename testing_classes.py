@@ -18,7 +18,7 @@ with open(csv_file_path, mode ='a', newline='') as file:
 #getting stimuli
 selected_list = expInfo['List']
 script_dir = os.path.dirname(os.path.abspath(__file__))
-stim_file = os.path.join(script_dir,f"CIDMEG_list{selected_list}.json")
+stim_file = os.path.join(script_dir,'stimlists', f"CIDMEG_list{selected_list}.json")
 
 exp = ipadSetup(stim_file)
 
