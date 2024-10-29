@@ -23,6 +23,7 @@ class ipadSetup(object):
             'block': '1',
             'list': 'A' 
             }
+        self.image_timings = []
             
         script_dir = os.path.dirname(os.path.abspath(__file__))
         self.image_file = os.path.join(script_dir,'images')
@@ -77,23 +78,31 @@ class ipadSetup(object):
                     if os.path.isfile(image_path):
                         image_stim = visual.ImageStim(win=self.win, image=image_path, pos=(0, 0))
                         image_stim.draw()
-                        self.show_all()
+
+                    #Create a clickable region
+                    self.pressable_region(pos=(0.6, -0.8), size=(0.3, 0.2), outline_color='blue') 
+                    
+                    #added this after learning Clock logic
+                    #best solution I have so far
+                    time_shown = core.CountdownTimer(0.7)
+                    while time_shown.getTime() > 0:
+                        image_stim.draw()
+                        self.win.flip()
                         
-                        #hold image for 0.7
-                        core.wait(0.7)
-                        
-                    else:
-                        print("File does not exist.")
-                        # Create a clickable region for the user to press during the experiment
-                    #self.pressable_region(pos=(0.6, -0.8), size=(0.3, 0.2), outline_color='blue')  # Adjust position/size as needed
-    
-                    if event.getKeys(keyList=['space']):
-                        self.win.close()
-                        core.quit()
-                    if mouse.getPressed()[0]:
-                        if self.is_pressed(mouse):
+                        if mouse.getPressed()[0]:
+                            if self.is_pressed(mouse):
+                                self.win.close()
+                                core.quit()
+                                
+                        #backup way to quit while testing
+                        if event.getKeys(keyList=['space']):
                             self.win.close()
                             core.quit()
-                            
-                    
+                #get image time for each image
+                    image_time =  self.win.flip()
+                    self.image_timings.append((k, image_time))
+                    print(f"Displayed {k} at {image_time} seconds")
+                        
+                else:
+                    print("File does not exist.")
         

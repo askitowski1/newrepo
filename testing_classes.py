@@ -36,6 +36,7 @@ while True:
             break
 #instructions
 exp.text_stims.clear()
+exp.win.flip()
 exp.make_text("These are the instructions....", color='white', font='Calibri')
 exp.make_text("Click here to contiue", size=0.1, pos=(0.6,-0.8))
 exp.pressable_region(pos=(0.6, -0.8), size=(0.78, 0.2), outline_color=True)
@@ -52,6 +53,7 @@ while True:
 
 #Starting experiment 
 exp.text_stims.clear()
+exp.win.flip()
 exp.pressable_regions.clear()
 exp.run_experiment()
 
