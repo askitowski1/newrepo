@@ -78,17 +78,20 @@ for screen in screens:
         if event.Mouse(win=exp.win).getPressed()[0]:
             break
         
-#loading stimuli
+#loading stimuli names
 with open(stim_file, 'r') as file:
     data = json.load(file)
-    
 image_names = data['stims']
 
+#preloading images
+exp.preload(image_dir)
 
-#displaying stimuli
-images = []
+#create mouse
+mouse = event.Mouse(visible = True, win = exp.win)
+
+#displaying preloaded images
 previous_time = None
-for i in data['stims']:
+for i in image_names:
     for j in i:
         for k in j:
             image_path = os.path.join(image_dir, f"{k}")
@@ -96,31 +99,34 @@ for i in data['stims']:
                 image_stim = visual.ImageStim(win=exp.win, image=image_path, pos=(0, 0))
                 image_stim.draw()
                 exp.win.flip() 
-                core.wait(0.65) 
+                core.wait(0.674)
 
+            # Track region press
             exp.pressable_region(exp.win, pos=(0.6, -0.8), size=(0.78, 0.2), outline_color=False)
-            
+
             if event.Mouse(win=exp.win).getPressed()[0]:
                 if exp.is_pressed(mouse):
                     exp.win.close()
                     core.quit()
-                
-            #backup way to quit while testing
+
+            # Backup way to quit while testing
             if event.getKeys(keyList=['space']):
                 exp.win.close()
                 core.quit()
 
-            image_time =  round(exp.win.flip(), 4)
+            # Logging image timings
+            image_time = round(exp.win.flip(), 4)
             exp.image_timings.append((k, image_time))
-            #adding timing info to excel file
+            # Adding timing info to excel file
             difference = None
             if previous_time is not None:
                 difference = round(image_time - previous_time, 3)
             previous_time = image_time
-            
+
             ws2.append([k, image_time, difference])
             wb.save('Subject Info.xlsx')
             print(f"Displayed {k} at {image_time} seconds")
 
+# Close the window and save the Excel file
 exp.win.close()
 wb.save('Subject Info.xlsx')

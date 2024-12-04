@@ -15,6 +15,7 @@ class ipadSetup(object):
         self.text_stims = []
         self.pressable_regions = []
         self.image_timings = []
+        self.preloaded_images = {}
        
     
     #creating text
@@ -35,4 +36,13 @@ class ipadSetup(object):
             if mouse.isPressedIn(region):
                 return True 
             return False
+            
+    def preload(self, image_dir):
+        for file_name in os.listdir(image_dir):
+            image_path = os.path.join(image_dir, file_name)
+            if os.path.isfile(image_path) and file_name.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
+                self.preloaded_images[file_name] = visual.ImageStim(win=self.win, image=image_path, pos=(0, 0))
+        print("All images are preloaded")
+
         
+    
