@@ -1,4 +1,5 @@
 from ipad_setup import ipadSetup
+#from excel_timing import adding_data, saving_timing_data
 from psychopy import core, event, visual, gui
 import json, os, csv, openpyxl
 from openpyxl import Workbook, load_workbook
@@ -8,7 +9,6 @@ expInfo = {'Participant': '', 'Session': '', 'Block': '', 'List': 'B'}
 dlg = gui.DlgFromDict(dictionary=expInfo, order=['Participant', 'Session', 'Block', 'List'], title="Participant info")
 if dlg.OK == False:
     core.quit()
-
 
 #getting stimuli
 selected_list = expInfo['List']
@@ -86,6 +86,31 @@ image_names = data['stims']
 #preloading images
 exp.preload(image_dir)
 
+#making loading bars and text
+bar = visual.Rect(win = exp.win, size=(0.78, 0.2), lineColor = 'white', fillColor = 'white') #start at -.39 because that is the left edge of a size .78, .2 rectangle
+text = exp.make_text(exp.win, "Stimuli loading...", color='white', font='Calibri', pos = (0, -.4) ,size = 0.1)
+#bar2 = visual.Rect(win = exp.win, size=(0.0, 0.2), pos = (0,-.6), lineColor = 'white', fillColor = 'lightblue')
+
+#filling bar2
+total_images = len(os.listdir(image_dir))
+images_loaded = 0
+
+
+for file_name in os.listdir(image_dir):
+    image_path = os.path.join(image_dir, file_name)
+    if os.path.isfile(image_path) and file_name.lower().endswith(('.jpg')):
+        exp.preloaded_images[file_name] = visual.ImageStim(win=exp.win, image=image_path, pos=(0, 0))
+
+        #filling bar2
+        images_loaded += 1
+        bar.width = .78 * (images_loaded/ total_images) #this is filling from the middle
+        bar.pos = (-.39 + bar.width/2, -.6)
+        
+        #making bar and text
+        bar.draw()
+        text.draw()
+#        bar2.draw()
+        exp.win.flip()
 #create mouse
 mouse = event.Mouse(visible = True, win = exp.win)
 
@@ -94,12 +119,11 @@ previous_time = None
 for i in image_names:
     for j in i:
         for k in j:
-            image_path = os.path.join(image_dir, f"{k}")
-            if os.path.isfile(image_path):
-                image_stim = visual.ImageStim(win=exp.win, image=image_path, pos=(0, 0))
+            if k in exp.preloaded_images:
+                image_stim = exp.preloaded_images[k]
                 image_stim.draw()
                 exp.win.flip() 
-                core.wait(0.674)
+                core.wait(0.69)
 
             # Track region press
             exp.pressable_region(exp.win, pos=(0.6, -0.8), size=(0.78, 0.2), outline_color=False)
@@ -126,7 +150,6 @@ for i in image_names:
             ws2.append([k, image_time, difference])
             wb.save('Subject Info.xlsx')
             print(f"Displayed {k} at {image_time} seconds")
-
-# Close the window and save the Excel file
+# Close the window 
 exp.win.close()
-wb.save('Subject Info.xlsx')
+#wb.save('Subject Info.xlsx')

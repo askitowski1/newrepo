@@ -2,16 +2,14 @@
 #from psychopy_setup to start
 
 import os
-from psychopy import core,gui,visual,data,logging,event #,sound,microphone
-from psychopy.hardware import keyboard
+from psychopy import core,gui,visual,data,logging,event
 import psychtoolbox as pt
 import csv
-import time
 import json
 
 class ipadSetup(object):
     def __init__(self):
-        self.win = visual.Window(fullscr = True, color = [0,0,0])
+        self.win = visual.Window(fullscr = True, color = 'black')
         self.text_stims = []
         self.pressable_regions = []
         self.image_timings = []
@@ -35,12 +33,12 @@ class ipadSetup(object):
         for region in self.pressable_regions:
             if mouse.isPressedIn(region):
                 return True 
-            return False
+        return False
             
     def preload(self, image_dir):
         for file_name in os.listdir(image_dir):
             image_path = os.path.join(image_dir, file_name)
-            if os.path.isfile(image_path) and file_name.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
+            if os.path.isfile(image_path) and file_name.lower().endswith(('.jpg')):
                 self.preloaded_images[file_name] = visual.ImageStim(win=self.win, image=image_path, pos=(0, 0))
         print("All images are preloaded")
 
