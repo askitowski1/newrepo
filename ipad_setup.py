@@ -36,11 +36,26 @@ class ipadSetup(object):
         return False
             
     def preload(self, image_dir):
+        #creating variables
+        bar = visual.Rect(win = self.win, size=(0.78, 0.2), lineColor = 'white', fillColor = 'white') #start at -.39 because that is the left edge of a size .78, .2 rectangle
+        text = self.make_text(self.win, "Stimuli loading...", color='white', font='Calibri', pos = (0, -.4) ,size = 0.1)
+        total_images = len(os.listdir(image_dir))
+        images_loaded = 0
         for file_name in os.listdir(image_dir):
             image_path = os.path.join(image_dir, file_name)
             if os.path.isfile(image_path) and file_name.lower().endswith(('.jpg')):
-                self.preloaded_images[file_name] = visual.ImageStim(win=self.win, image=image_path, pos=(0, 0))
-        print("All images are preloaded")
-
+                if file_name in image_path:
+                    self.preloaded_images[file_name] = visual.ImageStim(win=self.win, image=image_path, pos=(0, 0))
+                    #filling bar
+                    images_loaded += 1
+                    bar.width = .78 * (images_loaded/ total_images) #this is filling from the middle
+                    bar.pos = (-.39 + bar.width/2, -.6) #keeps it filling from left side
         
-    
+                    #making bar and text
+                    bar.draw()
+                    text.draw()
+                    self.win.flip()
+                    
+                    print(f"{file_name} is loaded")
+        print("All images are preloaded")
+        
