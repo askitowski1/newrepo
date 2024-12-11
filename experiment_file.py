@@ -12,7 +12,7 @@ if dlg.OK == False:
 #getting stimuli
 selected_list = expInfo['List']
 script_dir = os.path.dirname(os.path.abspath(__file__))
-stim_file = os.path.join(script_dir,'stimlists', f"CIDMEG_list{selected_list}.json")
+stim_file  = os.path.join(script_dir,'stimlists', f"CIDMEG_list{selected_list}.json")
 image_dir = os.path.join(script_dir, 'images')
 
 #adding data to excel file
@@ -91,8 +91,8 @@ for i in image_names:
                 image_stim = exp.preloaded_images[k]
                 image_stim.draw()
                 exp.win.flip() 
-                core.wait(0.666) #for 30 Hz
-                #core.wait(0.65135) #for 60 Hz)
+                core.wait(0.633) 
+                #core.wait(0.5177) #for surface 
 
             # Track region press
             exp.pressable_region(exp.win, pos=(0.6, -0.8), size=(0.78, 0.2), outline_color=False)

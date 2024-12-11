@@ -3,6 +3,7 @@
 
 import os
 from psychopy import core,gui,visual,data,logging,event
+from PIL import Image
 import psychtoolbox as pt
 import csv
 import json
@@ -44,9 +45,12 @@ class ipadSetup(object):
         for file_name in os.listdir(image_dir):
             image_path = os.path.join(image_dir, file_name)
             if os.path.isfile(image_path) and file_name.lower().endswith(('.jpg')):
-                if file_name in image_path:
-                    self.preloaded_images[file_name] = visual.ImageStim(win=self.win, image=image_path, pos=(0, 0))
-                    #filling bar
+                try:
+                    # Resize image
+                    with Image.open(image_path) as img:
+                        img = img.resize((768, 768)) #all images were 1024x1024 or 2048x2048, this way they load on surface
+                        self.preloaded_images[file_name] = visual.ImageStim(win=self.win, image=img, pos=(0, 0))
+                    
                     images_loaded += 1
                     bar.width = .78 * (images_loaded/ total_images) #this is filling from the middle
                     bar.pos = (-.39 + bar.width/2, -.6) #keeps it filling from left side
@@ -56,6 +60,8 @@ class ipadSetup(object):
                     text.draw()
                     self.win.flip()
                     
-                    print(f"{file_name} is loaded")
+                    print(f"{file_name} loaded: {images_loaded}/ {total_images}")
+                except Exception as e:
+                    print(f"Could not load {file_name}: {e}")
         print("All images are preloaded")
         
