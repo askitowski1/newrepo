@@ -81,22 +81,23 @@ exp.preload(image_dir)
 
 #create mouse
 mouse = event.Mouse(visible = True, win = exp.win)
+# core.wait(5) #surface is stuck on the first few images for a seemingly random amount of time. 
+#              this kind of helped but theres prob a better fix
 
 #displaying preloaded images
 previous_time = None
+image_start_time = core.getTime() 
+button = exp.pressable_region(exp.win, pos=(0.75, -0.8), size=(0.39, 0.2), outline_color=False)
 for i in image_names:
     for j in i:
         for k in j:
             if k in exp.preloaded_images:
                 image_stim = exp.preloaded_images[k]
                 image_stim.draw()
+                button.draw()
                 exp.win.flip() 
-                core.wait(0.633) 
-                #core.wait(0.5177) #for surface 
 
             # Track region press
-            exp.pressable_region(exp.win, pos=(0.6, -0.8), size=(0.78, 0.2), outline_color=False)
-
             if event.Mouse(win=exp.win).getPressed()[0]:
                 if exp.is_pressed(mouse):
                     exp.win.close()
@@ -119,5 +120,9 @@ for i in image_names:
             ws2.append([k, image_time, difference])
             wb.save('Subject Info.xlsx')
             print(f"Displayed {k} at {image_time} seconds")
+            
+            while core.getTime() - image_start_time < .700:
+                core.wait(0.001)
+            image_start_time = core.getTime()
 # Close the window 
 exp.win.close()
