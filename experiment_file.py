@@ -1,7 +1,13 @@
 from ipad_setup import ipadSetup
-from psychopy import core, event, visual, gui
-import json, os, csv, openpyxl
-from openpyxl import Workbook, load_workbook
+from psychopy import core, event, visual, gui, logging
+import json, os, time, subprocess
+
+#keyboard on
+subprocess.Popen('osk', shell=True)
+
+#setting log
+logging.console.setLevel(logging.EXP)
+logging.LogFile('experiment_log.log', level = logging.EXP)
 
 #getting subject info
 expInfo = {'Participant': '', 'Session': '', 'Block': '', 'List': 'B'}
@@ -9,37 +15,18 @@ dlg = gui.DlgFromDict(dictionary=expInfo, order=['Participant', 'Session', 'Bloc
 if dlg.OK == False:
     core.quit()
 
+#keyboard off 
+if dlg.OK == True:
+    os.system('taskkill /im osk.exe /f') #not working great, still need to fix
+    
 #getting stimuli
 selected_list = expInfo['List']
-script_dir = os.path.dirname(os.path.abspath(__file__))
+
+#setting directory to save timing from shortcut
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+script_dir = os.getcwd()
 stim_file  = os.path.join(script_dir,'stimlists', f"CIDMEG_list{selected_list}.json")
 image_dir = os.path.join(script_dir, 'images')
-
-#adding data to excel file
-try:
-    wb = load_workbook('Subject Info.xlsx')
-    ws1 = wb.active
-except FileNotFoundError:
-    wb = Workbook()
-    ws1 = wb.active
-    ws1.title = "Subject Info"
-    ws1.append(["Participant", "Session", "Block", "List", "Timing"])
-participant = expInfo['Participant']
-
-ws1.append([expInfo['Participant'], expInfo['Session'], expInfo['Block'], expInfo['List']])
-ws2 = wb.create_sheet(participant)
-ws2.append(['Image', 'Image Time', 'Difference', 'Average'])
-
-row = 2
-col = 5
-while ws1.cell(row=row, column=col).value is not None:
-    row += 1 
-link = f"Subject Info.xlsx#{participant}!A1"
-cell = ws1.cell(row=row, column=col)
-
-cell.hyperlink = link
-cell.value = "link"
-wb.save('Subject Info.xlsx')
 
 exp = ipadSetup()
 
@@ -81,13 +68,15 @@ exp.preload(image_dir)
 
 #create mouse
 mouse = event.Mouse(visible = True, win = exp.win)
-# core.wait(5) #surface is stuck on the first few images for a seemingly random amount of time. 
-#              this kind of helped but theres prob a better fix
 
-#displaying preloaded images
+#resetting clock so it's at 0 when images start
+globalClock = core.Clock()
+logging.setDefaultClock(globalClock)
 previous_time = None
-image_start_time = core.getTime() 
+image_start_time = 0
 button = exp.pressable_region(exp.win, pos=(0.75, -0.8), size=(0.39, 0.2), outline_color=False)
+
+#showing images
 for i in image_names:
     for j in i:
         for k in j:
@@ -97,7 +86,18 @@ for i in image_names:
                 button.draw()
                 exp.win.flip() 
 
-            # Track region press
+                #geting image time immediately and logging difference
+                image_start_time = globalClock.getTime()
+                if previous_time is not None:
+                    difference = round(image_start_time - previous_time, 3)
+                else:
+                    difference = 0
+                logging.exp(f"Displayed {k} at {image_start_time}, at a {difference}s interval")
+
+                #set previous_time to image_start_time for next trial
+                previous_time = image_start_time
+        
+            #quit with click
             if event.Mouse(win=exp.win).getPressed()[0]:
                 if exp.is_pressed(mouse):
                     exp.win.close()
@@ -108,21 +108,12 @@ for i in image_names:
                 exp.win.close()
                 core.quit()
 
-            # Logging image timings
-            image_time = round(core.getTime(), 4)
-            exp.image_timings.append((k, image_time))
-            # Adding timing info to excel file
-            difference = None
-            if previous_time is not None:
-                difference = round(image_time - previous_time, 3)
-            previous_time = image_time
-
-            ws2.append([k, image_time, difference])
-            wb.save('Subject Info.xlsx')
-            print(f"Displayed {k} at {image_time} seconds")
-            
-            while core.getTime() - image_start_time < .700:
+            #making loop to make each image last .7s
+            while globalClock.getTime() - image_start_time < .700:
                 core.wait(0.001)
-            image_start_time = core.getTime()
+            #timing worked better for 60Hz monitor
+            #while globalClock.getTime() - image_start_time < .6847:
+                #core.wait(0.012)
+            image_start_time = globalClock.getTime()
 # Close the window 
 exp.win.close()
