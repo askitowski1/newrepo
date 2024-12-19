@@ -1,3 +1,4 @@
+
 from surface_setup import surfaceSetup
 from Loading_stims import versionTracker
 from psychopy import core, event, visual, gui, logging
@@ -42,8 +43,12 @@ for screen in screens:
         pass
     while True:
         if event.Mouse(win=exp.win).getPressed()[0]:
+<<<<<<< HEAD
             if exp.is_pressed(mouse):
                 break
+=======
+            break
+>>>>>>> e127c86c483d90c353a812737a524113f52ce7d8
         
 #loading stimuli names
 with open(stim_file, 'r') as file:
@@ -56,6 +61,7 @@ exp.preload(image_dir)
 #create mouse
 mouse = event.Mouse(visible = True, win = exp.win)
 
+<<<<<<< HEAD
 #resetting clock so its at 0 when images start
 globalClock = core.Clock()
 logging.setDefaultClock(globalClock)
@@ -63,10 +69,21 @@ previous_time = None
 image_start_time = 0 
 button = exp.pressable_region(exp.win, pos=(0.75, -0.8), size=(0.39, 0.2), outline_color=True)
 
+=======
+#resetting clock so it's at 0 when images start
+globalClock = core.Clock()
+logging.setDefaultClock(globalClock)
+previous_time = None
+image_start_time = 0
+button = exp.pressable_region(exp.win, pos=(0.75, -0.8), size=(0.39, 0.2), outline_color=False)
+
+#showing images
+>>>>>>> e127c86c483d90c353a812737a524113f52ce7d8
 for i in image_names:
     for j in i:
         for k in j:
             if k in exp.preloaded_images:
+<<<<<<< HEAD
                 exp.win.flip() 
                 
                 #getting image time immediately and logging difference
@@ -100,3 +117,41 @@ for i in image_names:
             
 # Close the window 
 exp.win.close()
+=======
+                image_stim = exp.preloaded_images[k]
+                image_stim.draw()
+                button.draw()
+                exp.win.flip() 
+
+                #geting image time immediately and logging difference
+                image_start_time = globalClock.getTime()
+                if previous_time is not None:
+                    difference = round(image_start_time - previous_time, 3)
+                else:
+                    difference = 0
+                logging.exp(f"Displayed {k} at {image_start_time}, at a {difference}s interval")
+
+                #set previous_time to image_start_time for next trial
+                previous_time = image_start_time
+        
+            #quit with click
+            if event.Mouse(win=exp.win).getPressed()[0]:
+                if exp.is_pressed(mouse):
+                    exp.win.close()
+                    core.quit()
+
+            # Backup way to quit while testing
+            if event.getKeys(keyList=['space']):
+                exp.win.close()
+                core.quit()
+
+            #making loop to make each image last .7s
+            while globalClock.getTime() - image_start_time < .700:
+                core.wait(0.001)
+            #timing worked better for 60Hz monitor
+            #while globalClock.getTime() - image_start_time < .6847:
+                #core.wait(0.012)
+            image_start_time = globalClock.getTime()
+# Close the window 
+exp.win.close()
+>>>>>>> e127c86c483d90c353a812737a524113f52ce7d8
