@@ -68,7 +68,6 @@ for i in image_names:
     for j in i:
         for k in j:
             if k in exp.preloaded_images:
-<<<<<<< HEAD
                 exp.win.flip() 
                 
                 #getting image time immediately and logging difference
